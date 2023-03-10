@@ -1,5 +1,5 @@
 # to-do list project
-Creating my own personal to do list app. Backend in Go, Frontend in React JS with CSS.
+Creating my own personal to do list app. Backend in Go, Frontend in React JS with CSS. Initial scheme inspired by this [tutorial](https://www.youtube.com/watch?v=8mEC1X5yLjY), filling in the gaps as it is incomplete, and building out from there.
 
 ## Future Work
 1. Add more features to a task (ex due date, urgency, tag (like physical, work, etc))
