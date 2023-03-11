@@ -1,70 +1,21 @@
-# Getting Started with Create React App
+# This file covers the design of the front-end
+As I am new to React (and front-end work in general), this will cover my outline for the scheme to handle to front-end of this project, written in React JS and styled with CSS and Flexbox.
+Teaching myself functional React as well, moving away from OOP as this seems to have been phased out, especially for front-end work.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Composition
+**Task**
+This handles the basic building block of a To Do List, aka a Task. Each Task has an ID, Status (in-progress = false, done = true), and a Task (the thing to do). Each task will be represented by a card in our "block" or stack, and needs to show the Task string. 
+Needs methods to handle update (so I can change the task in case of a typo), deleteTask (select-and-delete), and completeTask.
+- Update Task: When choosing to update a task, focus on it (inputRef.focus()), and create a ToDoForm to handle the submission of new information, and update the Task's Task accordingly.
+- Delete Task: Just need to create an icon (likely using React Icon's CloseCircleLine), that will call ToDoList::deleteTask(task)
+- Complete Task: In future work, test out different functionalities for this. Current goal is to have upon click, update the font to a slash-through, and maybe darken. This can be done by checking the Task's status, and change the className accordingly to update the styling within the CSS file.
 
-## Available Scripts
+**ToDoForm**
+This handles the form in which the user can input the information to create a new Task. Will serve dual-purpose, such that if someone wants to change a Task, can reuse the form here to edit it. Is a basic form that handles an input string, and upon entering will submit, refresh the values so the box can be reused, and send the submission to the list to handle.
 
-In the project directory, you can run:
+**ToDoList**
+This handles the functions of connecting to the backend with addTask, deleteTask, updateTask, and completeTask. Will need to connect the local changes to the DB, implemented using axios HTTP functions. Actual HTML is just have a ToDoForm and a Task stacked.
 
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Future Work
+1. Next goal is to create a button that can clear out all completed tasks. In terms of 'back-end' this can be as simple as deleting tasks with status=true, however would like to create a nice CSS animation to make the user feel accomplished about finishing tasks.
+2. Look into creating a drag-and-drop scheme to order tasks (or if I add a task.tag attribute, use that to order, ex by urgency).
