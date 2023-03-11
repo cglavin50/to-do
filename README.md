@@ -1,8 +1,10 @@
 # to-do list project
 Creating my own personal to do list app. The DataBase layer is run with MongoDB (currently locally), Backend is handled through Golang, and Frontend/Presentation is handled through React JS and Flexbox CSS. Backend inspiration came from this [tutorial](https://www.youtube.com/watch?v=8mEC1X5yLjY).
+
 **Structure**
 - DB is run locally on port 27071 (can be changed via a .env file in the main directory). This stores all the tasks.
 - Backend runs a middle-man server on port 9000. Handles get and post to /api/task. Updates go to /api/task/{id}. Delete served via /api/deleteTask/{id}, and /api/deleteAllTasks is in future work.
+- Frontend runs a server on 3000. This will allow incoming connections and serve the presentation layer, and will process user input and send to the backend server to process and communicate with backend.
 
 ## Future Work
 1. Add more features to a task (ex due date, urgency, tag (like physical, work, etc))
