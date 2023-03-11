@@ -6,6 +6,9 @@ Creating my own personal to do list app. The DataBase layer is run with MongoDB 
 - Backend runs a middle-man server on port 9000. Handles get and post to /api/task. Updates go to /api/task/{id}. Delete served via /api/deleteTask/{id}, and /api/deleteAllTasks is in future work.
 - Frontend runs a server on 3000. This will allow incoming connections and serve the presentation layer, and will process user input and send to the backend server to process and communicate with backend.
 
+# To Do
+After getting a basic implementation, need to update the front-end server configuation with latest verison to resolve security issues.
+
 ## Future Work
 1. Add more features to a task (ex due date, urgency, tag (like physical, work, etc))
 2. Move DB to cloud (likely AWS due to MongoDB quick-start).
