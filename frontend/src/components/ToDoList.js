@@ -1,62 +1,56 @@
 import React, {useState} from 'react'
 import ToDoForm from "./ToDoForm"
-import Task from "./Task"
+import axios from "axios"
+
+// global vars for axios //
+var endpoint = "http://localhost:9000";
+URLSearchParams = require('@ungap/url-search-params')
 
 function ToDoList() {
     const [tasks, setTasks]  = useState([])
 
-    const addTask = (task) => {
-        //below is code to remove preceding spaces (or just space entries)
-        if (!task.text || /^\s*$/.test(task.text)) {
+    
+    const addTask = async (form) => {
+        // remove unnecessary spaces
+        if (!form.text || /^\s*$/.test(form.text))
+        {
             return
         }
 
-        const newTasks = [task, ...tasks] // append tasks
+        // post request
+        const params = {
+            ID: form.id,
+            Task: form.text,
+            Status: form.status
+        };
+        const searchParams = new URLSearchParams(params);
+        const response = await axios.post(endpoint + "/api/task", 
+        {
+            ID: form.id,
+            Task: form.text,
+            Status: form.status
+        },
+        {headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }});
+        console.log(response);
+
+        const newTasks = [form, ...tasks]
         setTasks(newTasks)
-        //console.log(task, ...tasks)
-    };
 
-    const updateTask = (taskID, newValue) => {
-        //below is code to remove preceding spaces (or just space entries)
-        if (!newValue.text || /^\s*$/.test(newValue.text)) {
-            return;
-        }
-
-        // maps every item in prev (aka the tasks) to the same thing, and if the ID is a match change the value to newValue, else remain same
-        setTasks(prev => prev.map(item => (item.id === taskID ? newValue : item)))
-        //console.log(task, ...tasks)
+        console.log(form, ...tasks)
     }
-
-    const removeTask = (id) => {
-        const removeArr = [...tasks].filter(task => task.id !== id);
-
-        setTasks(removeArr);
-    };
-
-    const completeTask = (id) => {
-        console.log("Entered completeTask", id);
-        let updatedTaskList = tasks.map(task => {
-            if (task.id === id) {
-                task.isComplete = !task.isComplete
-            }
-
-            console.log("New status", task.isComplete);
-            return task
-        })
-        setTasks(updatedTaskList)
-       
-    };
 
     return (
         <div>
             <h1>What to do Today</h1>
             <ToDoForm onSubmit={addTask} />
-            <Task 
+            {/* <Task 
                 tasks={tasks}
                 completeTask={completeTask}
                 removeTask={removeTask}
                 updateTask={updateTask}
-            />
+            /> */}
         </div>
     )
 }

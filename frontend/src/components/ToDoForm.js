@@ -1,61 +1,44 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, { useState } from "react";
+// import axios from "axios";
+
+// // global variables
+// var endpoint = "http://localhost:9000/"
+// var querystring= require('querystring');
+// end globals
 
 function ToDoForm(props) {
-    const[input, setInput] = useState(props.edit ? props.edit.value : "") 
-
-    const inputRef = useRef(null);
-    //useEffect will run when isEditing is changing, meaning when a field is being edited, this function will enter and focus on it
-    useEffect(() => {
-        inputRef.current.focus()
-    })
+    const [input, setInput] = useState('');
 
     const handleChange = (e) => {
-        setInput(e.target.value);
+        setInput(e.target.value); // set the input to input value
     }
 
     const handleSubmit = (e) => {
-        e.preventDefault() // meaning don't refresh on submit, will likely remove as I am connecting to a backend
+        e.preventDefault(); // disabling refresh for now, might need to remove this
+
+        // form properties: id, text, status
         props.onSubmit({
-            id: Math.floor(Math.random() * 10000), // should implement a count for this later, instead of doing random
-            text: input
+            id: Math.floor(Math.random() * 1000),
+            text: input,
+            status: false
         });
-        
-        setInput(""); // reset input
+
+        setInput('')
     }
-    
+
     return (
-        <form className="ToDoForm" onSubmit={handleSubmit}>
-            {props.edit ? ( 
-                <>
-                <input 
+        <form className="todo-form" onSubmit = {handleSubmit}>
+            <input 
                 type="text" 
-                placeholder="Update task" 
+                placeholder="Create a task..." 
                 value={input} 
                 name="text" 
-                className="ToDoForm-Input edit"
-                onChange={handleChange}
-                ref={inputRef}
+                className="todo-input"
+                onChange = {handleChange}
             />
-            <button className="ToDoForm-Button edit">Update</button>
-            </>
-            ) : (
-                <>
-                <input 
-                type="text" 
-                placeholder="Create Task..." 
-                value={input} 
-                name="text" 
-                className="ToDoForm-Input"
-                onChange={handleChange}
-                ref={inputRef}
-            />
-            <button className="ToDoForm-Button">Add Task</button>
-            </>
-            )}
-            
-            
+            <button className = "todo-button">Add Task</button>
         </form>
-  )
+    )
 }
 
 export default ToDoForm
