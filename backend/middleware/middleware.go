@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http" // using bson's for encoding instead of Google protobuf, could implement change later
 	"os"
+	"strconv"
 
 	"github.com/cglavin50/to-do/backend/models" // can change to local roots (relative) if I install to goroot
 	"github.com/gorilla/mux"
@@ -80,47 +81,78 @@ func CreateTask(writer http.ResponseWriter, r *http.Request) {
 	writer.Header().Set("Access-Control-Allow-Methods", "POST")
 	writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-	// decode task, insert, re-encode
+	// parse the request and populate a model object task
+	r.ParseForm()
 	var task models.ToDoList
-	json.NewDecoder(r.Body).Decode(&task)
+	var err error
+	task.ID, err = strconv.Atoi(r.Form["ID"][0])
+	if err != nil {
+		log.Fatal(err)
+	}
+	task.Task = r.Form["Task"][0]
+	task.Status, err = strconv.ParseBool(r.Form["Status"][0])
+	if err != nil {
+		log.Fatal(err)
+	}
 	insertTask(task)
-	json.NewEncoder(writer).Encode(task)
-
 } // create task
 
 // is there a way to use pass-by-reference to update the the interface without explicitly calling this headers.set every time?
-func TaskComplete(writer http.ResponseWriter, r *http.Request) {
+func UpdateTask(writer http.ResponseWriter, r *http.Request) {
 	// set headers
 	writer.Header().Set("Content-Type", "application/x-www-form-urlencoded")
 	writer.Header().Set("Access-Control-Allow-Origin", "*")
 	writer.Header().Set("Access-Control-Allow-Methods", "PUT")
 	writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-	params := mux.Vars(r)                        // create a map of route variables
-	taskComplete(params["id"])                   // get the task, mark it as complete
-	json.NewEncoder(writer).Encode(params["id"]) // update the task with new status
+	// as I am getting the ID anyways while populating, the mux.Vars is unneccessary. However, I wanted to learn about deconstructing URL routes so left it in
+	params := mux.Vars(r)
+	// populate the task object
+	// parse the request and populate a model object task
+	r.ParseForm()
+	var task models.ToDoList
+	var err error
+	task.ID, err = strconv.Atoi(r.Form["ID"][0])
+	if err != nil {
+		log.Fatal(err)
+	}
+	task.Task = r.Form["Task"][0]
+	task.Status, err = strconv.ParseBool(r.Form["Status"][0])
+	if err != nil {
+		log.Fatal(err)
+	}
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	updateTask(id, task)
+} // update task
 
-} // complete task
+// depreciated
+// func UndoTask(writer http.ResponseWriter, r *http.Request) {
+// 	writer.Header().Set("Content-Type", "application/x-www-form-urlencoded")
+// 	writer.Header().Set("Access-Control-Allow-Origin", "*")
+// 	writer.Header().Set("Access-Control-Allow-Methods", "PUT")
+// 	writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-func UndoTask(writer http.ResponseWriter, r *http.Request) {
-	writer.Header().Set("Content-Type", "application/x-www-form-urlencoded")
-	writer.Header().Set("Access-Control-Allow-Origin", "*")
-	writer.Header().Set("Access-Control-Allow-Methods", "PUT")
-	writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-	params := mux.Vars(r)                        // create a map of route variables. mux stores path variables, which are written in hex
-	undoTask(params["id"])                       // get the task, mark it as complete
-	json.NewEncoder(writer).Encode(params["id"]) // update the task with new status
-} // undo task
+// 	params := mux.Vars(r)                        // create a map of route variables. mux stores path variables, which are written in hex
+// 	undoTask(params["id"])                       // get the task, mark it as complete
+// 	json.NewEncoder(writer).Encode(params["id"]) // update the task with new status
+// } // undo task
 
 func DeleteTask(writer http.ResponseWriter, r *http.Request) {
+	fmt.Println("Entered DeleteTask")
 	writer.Header().Set("Content-Type", "application/x-www-form-urlencoded")
 	writer.Header().Set("Access-Control-Allow-Origin", "*")
 	writer.Header().Set("Access-Control-Allow-Methods", "DELETE")
 	writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	params := mux.Vars(r)
-	deleteTask(params["id"])
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
+	deleteTask(id)
 } // delete task
 
 func DeleteAllTasks(writer http.ResponseWriter, r *http.Request) {
@@ -132,11 +164,25 @@ func DeleteAllTasks(writer http.ResponseWriter, r *http.Request) {
 } // delete all tasks
 
 // task update functions
-func taskComplete(task string) {
-	id, _ := primitive.ObjectIDFromHex(task) // why is task in hex?
-	filter := bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"status": true}}
-	result, err := collection.UpdateOne(context.Background(), filter, update) // use filter to get the ID, then update to status true
+// func completeTask(id int, task models.ToDoList) {
+// 	// fmt.Println("Editing task " + id)
+// 	// fmt.Println("Task.ID: " + task.ID)
+// 	filter := bson.M{"id": task.ID}                                          //bson.M returns the data as a map, and assuming ID's are unique, this will work fine, other possibiltiy is using D to create slice (unfixed size array)
+// 	data := bson.M{"$set": bson.M{"task": task.Task, "status": task.Status}} // have this here just in case, this can be generalized to an updateFunction
+// 	result, err := collection.UpdateOne(context.Background(), filter, data)
+// 	if err != nil {
+// 		log.Fatal("Error updating one in DB during complete:", err)
+// 	}
+// 	fmt.Println("Modified count:", result.ModifiedCount)
+// }
+
+// task update functions
+func updateTask(id int, task models.ToDoList) {
+	// fmt.Println("Editing task " + id)
+	// fmt.Println("Task.ID: " + task.ID)
+	filter := bson.M{"id": id}                                               //bson.M returns the data as a map, and assuming ID's are unique, this will work fine, other possibiltiy is using D to create slice (unfixed size array)
+	data := bson.M{"$set": bson.M{"task": task.Task, "status": task.Status}} // have this here just in case, this can be generalized to an updateFunction
+	result, err := collection.UpdateOne(context.Background(), filter, data)
 	if err != nil {
 		log.Fatal("Error updating one in DB during complete:", err)
 	}
@@ -175,20 +221,19 @@ func insertTask(task models.ToDoList) {
 	fmt.Println("Inserted single record", insertResult.InsertedID)
 }
 
-func undoTask(task string) {
-	id, _ := primitive.ObjectIDFromHex(task) // why is task in hex?
-	filter := bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"status": false}}
-	result, err := collection.UpdateOne(context.Background(), filter, update) // use filter to get the ID, then update to status true
-	if err != nil {
-		log.Fatal("Error updating one in DB during undo: ", err)
-	}
-	fmt.Println("Modified count:", result.ModifiedCount)
-}
+// func undoTask(task string) {
+// 	id, _ := primitive.ObjectIDFromHex(task) // why is task in hex?
+// 	filter := bson.M{"_id": id}
+// 	update := bson.M{"$set": bson.M{"status": false}}
+// 	result, err := collection.UpdateOne(context.Background(), filter, update) // use filter to get the ID, then update to status true
+// 	if err != nil {
+// 		log.Fatal("Error updating one in DB during undo: ", err)
+// 	}
+// 	fmt.Println("Modified count:", result.ModifiedCount)
+// }
 
-func deleteTask(task string) {
-	id, _ := primitive.ObjectIDFromHex(task)
-	filter := bson.M{"_id": id}
+func deleteTask(id int) {
+	filter := bson.M{"id": id}
 	delete, err := collection.DeleteOne(context.Background(), filter)
 	if err != nil {
 		log.Fatal("Error in deleting one: ", err)

@@ -3,7 +3,6 @@ import React, { useState } from "react";
 
 // // global variables
 // var endpoint = "http://localhost:9000/"
-// var querystring= require('querystring');
 // end globals
 
 function ToDoForm(props) {

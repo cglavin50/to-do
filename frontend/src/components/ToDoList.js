@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import ToDoForm from "./ToDoForm"
+import Task from "./Task"
 import axios from "axios"
 
 // global vars for axios //
@@ -17,7 +18,9 @@ function ToDoList() {
             return
         }
 
-        // post request
+        // post request, axios by default will serialize JS objects to JSON, so we want to send in application/x-www-form-urlencoded as just sending a couple small pairs of info
+        // however, this requests can easily be read by an Eve, so look into encryption later?
+        // look to move to qs library? Seems to be more secure version of querystring
         const params = {
             ID: form.id,
             Task: form.text,
@@ -25,32 +28,83 @@ function ToDoList() {
         };
         const searchParams = new URLSearchParams(params);
         const response = await axios.post(endpoint + "/api/task", 
-        {
-            ID: form.id,
-            Task: form.text,
-            Status: form.status
-        },
+        searchParams.toString(),
         {headers: {
             "Content-Type": "application/x-www-form-urlencoded"
         }});
+        console.log("Response:");
         console.log(response);
 
         const newTasks = [form, ...tasks]
         setTasks(newTasks)
-
         console.log(form, ...tasks)
+    }
+
+    // remove from the array of tasks, then remove from DB
+    const removeTask = async (id) => {
+        // delete request
+        // while each ID should be unique, this way we implicitly handle the case where there are no tasks with this ID
+        // while this is less time efficient, again at the scale we are working with this is minimal, can be improved later
+        for (let t of tasks) {
+            if (t.id === id) {
+                const headers =  {'Content-Type': 'application/x-www-form-urlencoded'}
+                const response = await axios.delete(endpoint + "/api/deleteTask/" + id, headers);
+                console.log("Delete Response:");
+                console.log(response);
+            }
+        }
+
+        const removeArr = [...tasks].filter(task => task.id !== id); // filter by only adding tasks without passed in ID
+        // ^ this isn't the most space efficient, however working with small-scale JSON records, so can optimize later
+        setTasks(removeArr)
+    }
+
+
+    // complete task just updates status to mark it as 'completed', or done
+    // need to then put the record to update status in the DB
+    const completeTask = async (id) => {
+        const params = {
+            ID: 0,
+            Task: "",
+            Status: false,
+        };
+
+        let updatedTasks = tasks.map(task => {
+            if (task.id === id) {
+                task.status = !task.status
+
+                // after matching ID, get all the new values
+                params.ID = task.id
+                params.Task = task.text
+                params.Status = task.status
+            }
+
+            return task
+        });
+        // now with params, send a put
+        const searchParams = new URLSearchParams(params);
+        const response = await axios.put(endpoint + "/api/task/" + id, 
+        searchParams.toString(),
+        {headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }});
+        console.log("Response:");
+        console.log(response);
+
+        setTasks(updatedTasks)
+        console.log(...tasks)
     }
 
     return (
         <div>
             <h1>What to do Today</h1>
             <ToDoForm onSubmit={addTask} />
-            {/* <Task 
+            <Task 
                 tasks={tasks}
                 completeTask={completeTask}
                 removeTask={removeTask}
-                updateTask={updateTask}
-            /> */}
+                // updateTask={updateTask}
+            />
         </div>
     )
 }
