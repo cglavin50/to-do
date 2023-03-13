@@ -26,16 +26,16 @@ function ToDoForm(props) {
     }
 
     return (
-        <form className="todo-form" onSubmit = {handleSubmit}>
+        <form className="ToDoForm" onSubmit = {handleSubmit}>
             <input 
                 type="text" 
                 placeholder="Create a task..." 
                 value={input} 
                 name="text" 
-                className="todo-input"
+                className="ToDoForm-Input"
                 onChange = {handleChange}
             />
-            <button className = "todo-button">Add Task</button>
+            <button className = "ToDoForm-Button">Add Task</button>
         </form>
     )
 }

@@ -164,19 +164,6 @@ func DeleteAllTasks(writer http.ResponseWriter, r *http.Request) {
 } // delete all tasks
 
 // task update functions
-// func completeTask(id int, task models.ToDoList) {
-// 	// fmt.Println("Editing task " + id)
-// 	// fmt.Println("Task.ID: " + task.ID)
-// 	filter := bson.M{"id": task.ID}                                          //bson.M returns the data as a map, and assuming ID's are unique, this will work fine, other possibiltiy is using D to create slice (unfixed size array)
-// 	data := bson.M{"$set": bson.M{"task": task.Task, "status": task.Status}} // have this here just in case, this can be generalized to an updateFunction
-// 	result, err := collection.UpdateOne(context.Background(), filter, data)
-// 	if err != nil {
-// 		log.Fatal("Error updating one in DB during complete:", err)
-// 	}
-// 	fmt.Println("Modified count:", result.ModifiedCount)
-// }
-
-// task update functions
 func updateTask(id int, task models.ToDoList) {
 	// fmt.Println("Editing task " + id)
 	// fmt.Println("Task.ID: " + task.ID)

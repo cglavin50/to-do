@@ -39,6 +39,32 @@ function ToDoList() {
         setTasks(newTasks)
         console.log(form, ...tasks)
     }
+    
+    const updateTask = async (taskID, newValue) => {
+        // remove unnecessary spaces
+        if (!newValue.text || /^\s*$/.test(newValue.text))
+        {
+            return;
+        }
+
+        // create put request
+        let params = {
+            ID: taskID,
+            Task: newValue.text,
+            Status: newValue.status
+        }
+        const searchParams = new URLSearchParams(params);
+        const response = await axios.put(endpoint + "/api/task/" + taskID, 
+        searchParams.toString(),
+        {headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }});
+        console.log("Response:");
+        console.log(response);
+
+        setTasks(prev => prev.map(item => item.id === taskID ? newValue : item)); // look over, if id matches set that task to newValue
+        console.log(tasks);
+    }
 
     // remove from the array of tasks, then remove from DB
     const removeTask = async (id) => {
@@ -58,7 +84,6 @@ function ToDoList() {
         // ^ this isn't the most space efficient, however working with small-scale JSON records, so can optimize later
         setTasks(removeArr)
     }
-
 
     // complete task just updates status to mark it as 'completed', or done
     // need to then put the record to update status in the DB
@@ -103,7 +128,7 @@ function ToDoList() {
                 tasks={tasks}
                 completeTask={completeTask}
                 removeTask={removeTask}
-                // updateTask={updateTask}
+                updateTask={updateTask}
             />
         </div>
     )
