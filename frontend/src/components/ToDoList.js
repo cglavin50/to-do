@@ -10,8 +10,38 @@ URLSearchParams = require('@ungap/url-search-params')
 function ToDoList() {
     const [tasks, setTasks]  = useState([])
 
+    const getTasks = async () => {
+        const response = await axios.get(endpoint + "/api/task")
+        console.log("Response in get");
+        console.log(response)
+
+        const data = response.data
+        let newTasks = [];
+        console.log(data)
+        for (let i = 0; i < data.length; i++)
+        {
+            const task = {
+                id: data[i].id,
+                text: data[i].task,
+                status: data[i].status,
+            }
+            newTasks = [task, ...newTasks];
+            setTasks(newTasks);
+        }
+        console.log("Logging newTasks");
+        for (let i = 0; i < newTasks.length; i++) {
+            console.log(newTasks[i])
+        }
+        console.log("Ended newtasks");
+        const obj = data[0]
+        console.log(obj)
+        console.log(obj.id)
+        console.log("Logged obj.id^")
+        // create form objects? obj is the array of JSONs of 
+    }
     
     const addTask = async (form) => {
+        getTasks();
         // remove unnecessary spaces
         if (!form.text || /^\s*$/.test(form.text))
         {
@@ -35,9 +65,11 @@ function ToDoList() {
         console.log("Response:");
         console.log(response);
 
-        const newTasks = [form, ...tasks]
-        setTasks(newTasks)
-        console.log(form, ...tasks)
+        const newTasks = [form, ...tasks];
+        setTasks(newTasks);
+
+        console.log(form, ...tasks);
+        console.log("Logged tasks");
     }
     
     const updateTask = async (taskID, newValue) => {
@@ -48,8 +80,9 @@ function ToDoList() {
         }
 
         // create put request
+        // use the new ID value randomly assigned in the form. Use old one to put and update new to new id
         let params = {
-            ID: taskID,
+            ID: newValue.id,
             Task: newValue.text,
             Status: newValue.status
         }
@@ -61,9 +94,9 @@ function ToDoList() {
         }});
         console.log("Response:");
         console.log(response);
+        const newTasks = tasks.map(item => item.id === taskID ? newValue : item)
 
-        setTasks(prev => prev.map(item => item.id === taskID ? newValue : item)); // look over, if id matches set that task to newValue
-        console.log(tasks);
+        setTasks(newTasks); // look over, if id matches set that task to newValue
     }
 
     // remove from the array of tasks, then remove from DB
@@ -75,7 +108,7 @@ function ToDoList() {
             if (t.id === id) {
                 const headers =  {'Content-Type': 'application/x-www-form-urlencoded'}
                 const response = await axios.delete(endpoint + "/api/deleteTask/" + id, headers);
-                console.log("Delete Response:");
+                console.log("Response");
                 console.log(response);
             }
         }

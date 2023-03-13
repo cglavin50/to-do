@@ -71,7 +71,7 @@ func GetAllTasks(writer http.ResponseWriter, r *http.Request) {
 	writer.Header().Set("Content-Type", "application/x-www-form-urlencoded") // content type vs content type? either way, defines what we are working with
 	writer.Header().Set("Access-Control-Allow-Origin", "*")                  // allow requests to come from anywhere *=wildcard, providing credentials will throw an error
 	payload := getAllTasks()
-	json.NewEncoder(writer).Encode(payload) // encode the payload via json package
+	json.NewEncoder(writer).Encode(payload) // encode the payload via json package (it will be returned )
 } // get all tasks
 
 func CreateTask(writer http.ResponseWriter, r *http.Request) {
@@ -128,18 +128,6 @@ func UpdateTask(writer http.ResponseWriter, r *http.Request) {
 	updateTask(id, task)
 } // update task
 
-// depreciated
-// func UndoTask(writer http.ResponseWriter, r *http.Request) {
-// 	writer.Header().Set("Content-Type", "application/x-www-form-urlencoded")
-// 	writer.Header().Set("Access-Control-Allow-Origin", "*")
-// 	writer.Header().Set("Access-Control-Allow-Methods", "PUT")
-// 	writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-// 	params := mux.Vars(r)                        // create a map of route variables. mux stores path variables, which are written in hex
-// 	undoTask(params["id"])                       // get the task, mark it as complete
-// 	json.NewEncoder(writer).Encode(params["id"]) // update the task with new status
-// } // undo task
-
 func DeleteTask(writer http.ResponseWriter, r *http.Request) {
 	fmt.Println("Entered DeleteTask")
 	writer.Header().Set("Content-Type", "application/x-www-form-urlencoded")
@@ -167,8 +155,8 @@ func DeleteAllTasks(writer http.ResponseWriter, r *http.Request) {
 func updateTask(id int, task models.ToDoList) {
 	// fmt.Println("Editing task " + id)
 	// fmt.Println("Task.ID: " + task.ID)
-	filter := bson.M{"id": id}                                               //bson.M returns the data as a map, and assuming ID's are unique, this will work fine, other possibiltiy is using D to create slice (unfixed size array)
-	data := bson.M{"$set": bson.M{"task": task.Task, "status": task.Status}} // have this here just in case, this can be generalized to an updateFunction
+	filter := bson.M{"id": id}                                                              //bson.M returns the data as a map, and assuming ID's are unique, this will work fine, other possibiltiy is using D to create slice (unfixed size array)
+	data := bson.M{"$set": bson.M{"id": task.ID, "task": task.Task, "status": task.Status}} // have this here just in case, this can be generalized to an updateFunction
 	result, err := collection.UpdateOne(context.Background(), filter, data)
 	if err != nil {
 		log.Fatal("Error updating one in DB during complete:", err)
