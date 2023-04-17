@@ -22,7 +22,6 @@ import (
 )
 
 var collection *mongo.Collection
-var client *mongo.Client
 
 // initialization functions //
 func init() {
