@@ -8,13 +8,13 @@ var endpoint = "http://localhost:9000";
 URLSearchParams = require('@ungap/url-search-params')
 
 
-const getTasks = async () =>
-  (await axios.get("/api/task", { baseURL: endpoint })).data
-    .map(({ id, task, status }) => ({
-      id,
-      text: task,
-      status,
-    }));
+// const getTasks = async () =>
+//   (await axios.get("/api/task", { baseURL: endpoint })).data
+//     .map(({ id, task, status }) => ({
+//       id,
+//       text: task,
+//       status,
+//     }));
 
 function ToDoList() {
     const [tasks, setTasks]  = useState([])
